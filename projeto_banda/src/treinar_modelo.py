@@ -24,9 +24,7 @@ def main():
 
     # Usamos somente as três medições anteriores como entradas.
     features = [
-        "throughput_t_1",
-        "throughput_t_2",
-        "throughput_t_3",
+    "throughput_t_1",
     ]
 
     X_treino = treino[features]
