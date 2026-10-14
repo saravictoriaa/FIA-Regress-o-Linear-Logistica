@@ -10,3 +10,4 @@ __pycache__/
 
 # Modelos treinados
 *.joblib
+/projeto_phishing/data/processed/
