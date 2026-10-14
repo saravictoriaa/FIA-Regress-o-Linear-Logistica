@@ -11,3 +11,8 @@ __pycache__/
 # Modelos treinados
 *.joblib
 /projeto_phishing/data/processed/
+
+# Dados e modelos gerados do projeto de banda
+/projeto_banda/data/raw/
+/projeto_banda/data/processed/
+/projeto_banda/models/
