@@ -11,7 +11,6 @@ from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
-    ConfusionMatrixDisplay,
     roc_curve,
     roc_auc_score,
 )
@@ -82,6 +81,7 @@ def main():
     pasta_graficos = pasta_projeto / "results" / "graficos"
     pasta_graficos.mkdir(parents=True, exist_ok=True)
 
+    
     # 4. Gráfico da matriz de confusão.
     matriz = confusion_matrix(
         y_teste,
@@ -89,31 +89,83 @@ def main():
         labels=ordem_classes,
     )
 
-    figura, eixo = plt.subplots(figsize=(7, 5))
+    # Nomes de cada quadrante.
+    # Ordem das linhas: phishing real, legítimo real.
+    # Ordem das colunas: phishing previsto, legítimo previsto.
+    rotulos_celulas = [
+        ["VP — Verdadeiro positivo", "FN — Falso negativo"],
+        ["FP — Falso positivo", "VN — Verdadeiro negativo"],
+    ]
 
-    exibicao = ConfusionMatrixDisplay(
-        confusion_matrix=matriz,
-        display_labels=nomes_classes,
+    figura, eixo = plt.subplots(figsize=(9, 6))
+
+    imagem = eixo.imshow(matriz, cmap="Blues")
+
+    # Adiciona o tipo de resultado e a quantidade em cada célula.
+    limite_cor = matriz.max() * 0.45
+
+    for i in range(matriz.shape[0]):
+        for j in range(matriz.shape[1]):
+            valor = matriz[i, j]
+
+            cor_texto = (
+                "white" if valor > limite_cor else "#17365D"
+            )
+
+            eixo.text(
+                j,
+                i,
+                f"{rotulos_celulas[i][j]}\n{valor:,}",
+                ha="center",
+                va="center",
+                color=cor_texto,
+                fontsize=10,
+                fontweight="bold",
+            )
+
+    # Identificação dos eixos.
+    eixo.set_xticks(np.arange(len(nomes_classes)))
+    eixo.set_xticklabels(nomes_classes)
+
+    eixo.set_yticks(np.arange(len(nomes_classes)))
+    eixo.set_yticklabels(nomes_classes)
+
+    eixo.set_xlabel("Classe prevista", labelpad=10)
+    eixo.set_ylabel("Classe real", labelpad=10)
+
+    eixo.set_title(
+        "Matriz de confusão — Regressão logística",
+        pad=16,
+        fontweight="bold",
     )
 
-    exibicao.plot(
-        ax=eixo,
-        cmap="Blues",
-        values_format="d",
-        colorbar=False,
+    # Linhas divisórias para facilitar a leitura.
+    eixo.set_xticks(
+        np.arange(-0.5, len(nomes_classes), 1),
+        minor=True,
     )
-
-    eixo.set_title("Matriz de confusão — Regressão logística")
-    eixo.set_xlabel("Classe prevista")
-    eixo.set_ylabel("Classe real")
+    eixo.set_yticks(
+        np.arange(-0.5, len(nomes_classes), 1),
+        minor=True,
+    )
+    eixo.grid(
+        which="minor",
+        color="white",
+        linestyle="-",
+        linewidth=2,
+    )
+    eixo.tick_params(which="minor", bottom=False, left=False)
 
     figura.tight_layout()
+
     figura.savefig(
         pasta_graficos / "matriz_confusao.png",
-        dpi=160,
+        dpi=180,
         bbox_inches="tight",
     )
+
     plt.close(figura)
+
 
     # 5. Gráfico de precision, recall e F1-score por classe.
     metricas = ["precision", "recall", "f1-score"]
